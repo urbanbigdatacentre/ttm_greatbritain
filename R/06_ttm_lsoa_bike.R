@@ -27,6 +27,7 @@ library(tidyverse)
 library(data.table)
 library(sf)
 #library(duckdb)
+library(arrow)
 
 # Read LSOA/DZ centroids
 centroids <- st_read("data/centroids/gb_lsoa_centroid2011.gpkg")
@@ -136,6 +137,30 @@ cat(paste("Total computation time:", round(as.numeric(difftime(end_time, start_t
 
 # Close the log file
 close(log_file)
+
+
+# Adjust travel time ------------------------------------------------------
+
+# Adjust TT by adding 5 minutes for mounting/dismounting bike
+# Based on Journey time statistics
+# https://www.gov.uk/government/publications/journey-time-statistics-guidance/journey-time-statistics-notes-and-definitions-2019
+
+# Get file paths
+ttmbike_path <- 
+  list.files('output/ttm/lsoa/ttm_bike/', full.names = TRUE, pattern = '.parquet')
+
+# function
+adjust_bike_tt <- function(file_path){
+  # Read TT
+  ttm <- arrow::read_parquet(file_path)
+  # Add 5 min
+  ttm[,travel_time_adj := travel_time_p50 + 5]
+  # write updated file
+  arrow::write_parquet(ttm, sink = file_path)
+}
+
+# Modify files
+lapply(ttmbike_path, adjust_bike_tt)
 
 
 # Test reading TTM --------------------------------------------------------
