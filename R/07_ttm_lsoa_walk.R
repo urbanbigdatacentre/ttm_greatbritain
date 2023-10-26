@@ -144,6 +144,8 @@ cat(paste("Total computation time:", round(as.numeric(difftime(end_time, start_t
 # Close the log file
 close(log_file)
 
+# Stop cores
+r5r::stop_r5()
 
 # Test reading TTM --------------------------------------------------------
 

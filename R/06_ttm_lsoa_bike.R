@@ -19,7 +19,7 @@
 # Libraries ---------------------------------------------------------------
 
 # Allocate RAM to Java
-options(java.parameters = "-Xmx60G")
+options(java.parameters = "-Xmx100G")
 # Load R5R, V 1.0.1
 library(r5r)
 
@@ -54,6 +54,8 @@ traffic_stress <- 2L
 # Source: Journey time statistics
 # https://www.gov.uk/government/publications/journey-time-statistics-guidance/journey-time-statistics-notes-and-definitions-2019
 bike_speed <- 16 # km/ph
+# Walk speed
+walk_speed <- 4.8
 # Tuesday 7 to 10 am and 9 to 12 pm
 departure_datetime <- as.POSIXct("2023-03-07 07:00:00")
 
@@ -107,7 +109,8 @@ for (i in 1:length(origin_batches)) {
     mode = mode,
     departure_datetime = departure_datetime,
     max_trip_duration = max_trip_duration,
-    max_lts = traffic_stress, 
+    max_lts = traffic_stress,
+    walk_speed = walk_speed,
     bike_speed = bike_speed 
   )
   
@@ -137,6 +140,8 @@ cat(paste("Total computation time:", round(as.numeric(difftime(end_time, start_t
 
 # Close the log file
 close(log_file)
+# Stop cores
+r5r::stop_r5()
 
 
 # Adjust travel time ------------------------------------------------------
