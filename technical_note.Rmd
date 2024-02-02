@@ -1,79 +1,128 @@
 ---
 title: "Public transport travel time matrices for Great Britain"
 subtitle: "Dataset descriptor"
-author: "J Rafael Verduzco-Torres, David McArthur"
-date: "June 2023"
-output:
-  html_document:
-    toc: yes
-    number_sections: yes
+author:
+    - name: "J Rafael Verduzco-Torres"
+      affiliation: "Urban Big Data Centre, University of Glasgow"
+      url: "JoseRafael.Verduzco-Torres@glasgow.ac.uk"
+      orcid_id: 0000-0002-1324-1714
+    - name: "David P McArthur"
+      affiliation: "Urban Big Data Centre, University of Glasgow"
+      orcid_id: 0000-0002-9142-3126
+date: "February 2024"
 bibliography: bib/ttm_references.bib
+output: distill::distill_article
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(kableExtra)
 ```
 
-# Background 
+# Background
 
-The estimated travel time from multiple origins to several potential destinations is a key input for the development of various regional and urban analyses. However, computing these values at a granular geographic level can be technically complex, time-consuming, and computationally intensive [@Conway2017; @Higgins2022]. This dataset provides ready-to-use door-to-door public transport travel time estimates for each of the 230,000 2011 Census output areas (OA) in Great Britain (GB) to every other OA reachable within 150 minutes during the morning peak for the year 2023. This information comprises an all-to-all travel time matrix (TTM) at the national level. In addition, the dataset includes two more TTMs at the lower super output area (LSOA) and the data zone (DZ) levels (42,000 LSOA/DZ units in total). These are estimated for two times of departure, specifically during the morning peak and at night. Altogether, these TTMs present a range of opportunities for researchers and practitioners, such as the development of accessibility measures, spatial connectivity or modifiable areal/temporal unit problem analyses, and the evaluation of public transport service changes throughout a day.
+The estimated travel time from multiple origins to several potential destinations is a key input for the development of various regional and urban analyses. However, computing these values at a granular geographic level can be technically complex, time-consuming, and computationally intensive [@Conway2017; @Higgins2022]. The present dataset provides ready-to-use travel time estimates for each of the lower super output area (LSOA) and the data zone (DZ) units in Great Britain (42,000 LSOA/DZ in total) to all other for three sustainable modes of transport, namely: public transport, bicycle, and walking. The public transport estimates considers two times of departure, specifically during the morning peak and at night. Altogether, this dataset presents a range of opportunities for researchers and practitioners, such as the development of tailored accessibility measures, spatial connectivity analyses, and the evaluation of public transport service changes throughout a day.
 
-This dataset is related to the 'Public Transport Accessibility Indicators 2022' (PTAI) dataset [@VerduzcoTorres2022; @VerduzcoTorres2022a]. The PTAI is openly available from the following links: <https://zenodo.org/record/8037156> and <http://ubdc.gla.ac.uk/dataset/public-transport-accessibility-indicators-2022/resource/9dc1517f-afd5-4cfe-bbee-5315483fab72>. The LSOA/DZ TTM provided in this iteration is comparable to the TTM offered in the PTAI 2022. Please note that despite being published in 2022, the estimates in PTAI 2022 utilized data corresponding to November 2021.
+Additionally, a public transport travel time matrix (TTM) at the output area (OA) level is available upon request. This is estimated from each of the 230,000 2011 Census OA to all other OA in GB at the morning peak only.
+
+This dataset is related to the 'Public Transport Accessibility Indicators 2022' (PTAI22) dataset [@VerduzcoTorres2024; @VerduzcoTorres2022a]. The PTAI22 is openly available at <https://zenodo.org/record/8037156>. The LSOA/DZ TTM by public transport provided in this iteration is directly comparable to the TTM offered in the PTAI 2022. It should be noted that despite being published in 2022, the estimates in PTAI22 utilized public transport schedules corresponding to November 2021.
 
 # Method{#method}
 
 ## Geographies
 
-The designated points representing origins and destinations are the respective population-weighted centroids (PWC) for OA or LSOA/DZ geographies. For this dataset, we employ the definitions corresponding to the 2011 Census.
+The designated points representing origins and destinations are population-weighted centroids (PWC). For this dataset, we employ the definitions corresponding to the 2011 Census.
 
-The PWC data for Scottish OAs were accessed from the National Records of Scotland digital platform (<https://www.nrscotland.gov.uk/statistics-and-data/geography/our-products/census-datasets/2011-census/2011-boundaries>) in May 2023. The PWC data related to DZs were obtained from the Government Digital Service (GDS) platform in December 2023 (<https://data.gov.uk/dataset/8aabd120-6e15-41bf-be7c-2536cbc4b2e5/data-zone-centroids-2011>). In total, 227,759 origins were considered at the OA level.
+For England and Wales, the LSOA PWC data were accessed from the Government Digital Service (GDS) in December 2021 (<https://data.gov.uk/dataset/a40f54f7-b123-4185-952f-da90c56b0564/lower-layer-super-output-areas-december-2011-population-weighted-centroids>). Meanwhile, the location of the PWC was sourced from the Office for National Statistics (ONS) in May 2023 (<https://geoportal.statistics.gov.uk/datasets/ons::output-areas-dec-2011-pwc/explore>). 
 
-The location of the PWC for OAs in Wales and England was sourced from the Office for National Statistics (ONS) in May 2023 (<https://geoportal.statistics.gov.uk/datasets/ons::output-areas-dec-2011-pwc/explore>). Meanwhile, the LSOA PWC data were accessed from the GDS in December 2021 (<https://data.gov.uk/dataset/a40f54f7-b123-4185-952f-da90c56b0564/lower-layer-super-output-areas-december-2011-population-weighted-centroids>). There are 42,72 LSOA/DZ considered as origins.
+The PWC data for Scottish DZs were obtained from the GDS platform in December 2023 (<https://data.gov.uk/dataset/8aabd120-6e15-41bf-be7c-2536cbc4b2e5/data-zone-centroids-2011>). The PWC data at OA level were accessed from the National Records of Scotland digital platform (<https://www.nrscotland.gov.uk/statistics-and-data/geography/our-products/census-datasets/2011-census/2011-boundaries>) in May 2023.
+
 
 ## Travel times
 
-The travel times were estimated using `R5R` package software version '1.0.1' [@R-r5r] for `R` programming language. This is an enhanced `R` implementation of the Conveyal R5 Routing Engine (<https://github.com/conveyal/r5>) [@Conway2018; @Conway2019]. The main inputs used are public transport timetables and the road network. This was done using a single graph for GB. This model enables multi-modal door-to-door journeys which can include a combination of pedestrian and on-vehicle journey stages.
+The travel times were estimated using `r5r` package software version '1.0.1' [@R-r5r] for `R` programming language. This is an enhanced `R` implementation of the Conveyal R5 Routing Engine (<https://github.com/conveyal/r5>) [@Conway2018; @Conway2019]. The main inputs used are public transport timetables and the road network. This was done using a single graph for GB. This model enables the estimation of multi-modal door-to-door journeys which can include a combination of pedestrian and on-vehicle journey stages for public transport estimates, for example.
 
-The timetable data are drawn from two sources. The first is the Rail Delivery Group (<https://data.atoc.org/data-download>), which mainly covers heavy rail services, e.g. regional trains in GB. The data used were published for the week corresponding to the 4th of March 2023 and downloaded on the 7th of March 2023. This data, originally accessed in CIF format, was then organized into the general transport feed specification (GTFS) using the `uk2gtfs` package for `R` [@Morgan2022a]. The second timetable source is the Bus Open Data Service (BODS, <https://www.bus-data.dft.gov.uk/>), which primarily includes local services across various transport modes, such as bus, tram, and ferry. The BODS data, downloaded in GTFS format on the 7th of March 2023, comes from operating companies and is supplemented by additional sources like Traveline (<https://www.travelinedata.org.uk/>). We compared the BODS data and the Traveline National Dataset (TNDS), both of which aim to provide equivalent information. [Appendix 1](#appedix-comparison) shows the results of this comparison, which suggest a high level of consistency. However, transforming TNDS from TransXChange to GTFS format leads to some information loss in our specific case. Thus, we preferred to use the data provided by BODS.
+The road and pedestrian network used was sourced from OpenStreetMap (OSM) and accessed from the GeoFrabrik (<https://download.geofabrik.de/>) platform. The data was manually downloaded for the whole GB in `.osm.pbf` format on May 2023. The files were filtered to keep only the relevant features for public transport routing (see script `R/00_prepare_osm.sh`).
 
-The road and pedestrian network used was sourced from OpenStreetMap and accessed from the GeoFrabrik (<https://download.geofabrik.de/>) platform. The data was manually downloaded for the whole GB in `.osm.pbf` format on May 2023. The files were filtered to keep only the relevant features for public transport routing (see script `R/00_prepare_osm.sh`).
+All of the travel time estimates are limited to a maximum duration of 150 minutes.
 
-### Routing parameters
+### Walking
 
-The maximum duration of a journey considered in this dataset was set to 150 minutes. The mode is specified is a combination of walking and public transport (defined as `c('WALK', 'TRANSIT')` in the software). The maximum access/egress walking time to/from public transport stations is unlimited as long as it does not exceed the maximum duration. This implies that some routes can be completed only by walking if there are no public transport services available. The walking speed defined was 4 km/h. The maximum number of public transport rides (on-vehicle) was set to 3, which allows a maximum of two transfers.
+Travel times on foot only use the OSM network as the its main input. The routing model considers the segments of the network deemed appropriate for pedestrian navigation according to the classification from the source. Further details can be found at <https://wiki.openstreetmap.org/wiki/Guidelines_for_pedestrian_navigation>. The average walking speed was set to 4.8 kph, following the Journey Travel Time Statistics (JTS) [@DfT2019].
+
+### Bicycle
+
+Routes by bicycle considers the characteristics of the OMS network. The routing engine includes a parameter to control the maximum level of traffic stress tolerated by cyclists, where "[a] value of 1 means cyclists will only travel through the quietest streets, while a value of 4 indicates cyclists can travel through any road" [@R-r5r]. The parameter chosen for our estimates is '2', which reflects an average cyclist.
+
+The average cycling used is 16 kph, in consistency with the JTS [@DfT2019. This is applicable for segments where a cyclist is allowed to be mounted. If the fastest route considers a pedestrian-only segment, the speed considered is 4.8 kph. Further details regarding the cycle route classification are available at <https://wiki.openstreetmap.org/wiki/Cycle_routes>.
+
+The estimates include a column with the adjusted cycling travel time, which adds five minutes for unlocking and locking a bicycle at the start and end of a journey, respectively. This time period is consistent with the JTS. 
+
+### Public transport. Sources and parameters
+
+The timetable data used for the public transport estimates are drawn from two sources. The first is the Rail Delivery Group (<https://data.atoc.org/data-download>), which mainly covers heavy rail services, e.g. regional trains in GB. The data used were published for the week corresponding to the 4th of March 2023 and downloaded on the 7th of March 2023. This data, originally accessed in CIF format, was then organized into the general transport feed specification (GTFS) using the `uk2gtfs` package for `R` [@Morgan2022a].
+
+The second timetable source used is the Bus Open Data Service (BODS, <https://www.bus-data.dft.gov.uk/>), which primarily includes local services across various transport modes, such as bus, tram, and ferry. The BODS data, downloaded in GTFS format on the 7th of March 2023, comes from operating companies and is supplemented by additional sources like Traveline (<https://www.travelinedata.org.uk/>). We compared the BODS data and the Traveline National Dataset (TNDS), both of which aim to provide equivalent information. [Appendix 1](#appedix-comparison) shows the results of this comparison, which suggest a high level of consistency. However, transforming TNDS from TransXChange to GTFS format leads to some loss of information. Thus, we preferred to use the data provided by BODS.
+
+#### Routing parameters
+
+The mode is specified is a combination of walking and public transport (defined as `c('WALK', 'TRANSIT')` in the software). The maximum access/egress walking time to/from public transport stations is unlimited as long as it does not exceed the maximum duration. This implies that some routes can be completed only by walking if there are no public transport services available. The walking speed defined was 4 km/h. The maximum number of public transport rides (on-vehicle) was set to 3, which allows a maximum of two transfers.
 
 The travel time via public transport can fluctuate depending on the operational characteristics of the services and the time of departure chosen [@Conway2018]. To account for this variability, we considered a three-hour time window. The output representing the travel time in this dataset corresponds to the 25th, 50th, and 75th percentiles of the options available within this time span (for more details, see the Conveyal R5 user manual <https://docs.conveyal.com/analysis/configuration>).
 
-The date of departure set for all travel times in this dataset is the 7th of March 2023. The departure time for the OA TTM is 7 a.m. (effectively, from 7 to 10 a.m., considering the three-hour time window). For the TTM at the LSOA/DZ level, the departure times are 7 a.m. and 9 p.m. (or between 7 to 10 a.m. and 9 p.m. to 12 a.m., respectively).
+The date of departure set for all travel times in this dataset is the 7th of March 2023. The departure time for the morning peak TTM is set to 7 a.m., or effectively from 7 to 10 a.m., considering the three-hour time window. The TTM at the LSOA/DZ level considers a second time of departure at the evening period. Specifically, departing at 9 p.m. with a three-hour time window, or equivalently between 9 p.m. to 12 a.m.
 
 # Data records
 
-The TTMs are organized in a row matrix format, where each row represents a unique origin-destination pair. The TTMs are offered in `.duckdb` and `.parquet` file formats. Each database contains a single table called 'ttm_pt'.
+The TTM structure follows a row matrix format, where each row represents a unique origin-destination pair. The TTMs are offered in a set of sequentially named `.parquet` files (more information about Parquet format at: <https://parquet.apache.org/>). The structure contains one directory for each mode, where 'bike', 'pt', and 'walk', correspond to bicycle, public transport, and walking, respectively.
 
-The LSOA/DZ TTM consists of six columns and 265 million rows, and it can be accessed from the following file directories: `ttm/lsoa/ttm_lsoa.duckdb` and `ttm/lsoa/ttm_lsoa.parquet`. The structure of the records is displayed in the table below:
+```{r}
+#fs::dir_tree('./output/ttm/lsoa/', recurse = TRUE)
+```
 
-```{r lsoa-desc}
-caption_losadesc <- "LSOA/DZ travel time matrix description."
-desc_lsoa <- read.csv('output/ttm/lsoa/descrip_ttm.csv')
+## Walking
+
+The walking TTM contains 13.3 million rows and three columns. The table below offers a description of the columns.
+
+```{r walk-desc}
+caption_losadesc <- "Walking travel time matrix codebook."
+desc_walk <- read.csv('output/ttm/lsoa/descrip_walk.csv')
+desc_walk %>% 
+  kbl(caption = caption_losadesc) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+## Bicycle
+
+The bicycle TTM includes 40 million rows and four columns which are described in the table below.
+
+```{r bike-desc}
+caption_bikedesc <- "Bicycle travel time matrix codebook."
+desc_bike <- read.csv('output/ttm/lsoa/descrip_bike.csv')
+desc_bike %>% 
+  kbl(caption = caption_bikedesc) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+## Public transport
+
+The LSOA/DZ TTM consists of six columns and 265 million rows. The internal structure of the records is displayed in the table below:
+
+```{r pt-desc}
+caption_losadesc <- "Public transport LSOA/DZ travel time matrix codebook."
+desc_lsoa <- read.csv('output/ttm/lsoa/descrip_pt.csv')
 desc_lsoa %>% 
   kbl(caption = caption_losadesc) %>%
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-The OA TTM consists of five columns and 4.8 billion rows. The data is consolidated into a single database in `.duckdb` format at `ttm/oa/ttm_lsoa.duckdb`. It's also available in a series of `.parquet` files in the `ttm/oa/` directory. The data is organized into 1,519 consecutive files, ranging from `ttm_part-1` to `ttm_part-1519`. Each of these files contains the travel times from 150 origins to all their corresponding destinations. The structure of the records is presented in the table below.
+The OA TTM consists of five columns and 4.8 billion rows. The data is organised in a series `.parquet` files in the `ttm/oa/` directory (available upon request). The data is organized into 1,519 consecutive files, ranging from `ttm_part-1` to `ttm_part-1519`. Each of these files contains the travel times from 150 origins to all their corresponding destinations. The structure of the records is equivalent to the previous table, except that these are estimated only for the morning peak.
 
-```{r oa-desc}
-caption_oadesc <- "OA travel time matrix description."
-desc_oa <- read.csv('output/ttm/oa/descrip_ttm.csv')
-desc_oa %>% 
-  kbl(caption = caption_oadesc) %>%
-  kable_styling(bootstrap_options = c("striped", "hover"))
-```
 
 # Usage notes
 
-Given the considerable size of the TTM, it is often impractical to load the records into memory. Therefore, we recommend using a database management system (DBMS). For the following examples, we utilize DuckDB (<https://duckdb.org/>). This is an in-process (serverless) DBMS designed to support analytical query workloads (OLAP) in Structured Query Language (SQL). This alleviates memory limitations. DuckDB, implemented in `C++`, can be executed from `R` through the `duckdb` package. We provide a few examples in the sections below.
+Given the considerable size of the TTM, we recommend using a database management system (DBMS). The following examples utilize DuckDB (<https://duckdb.org/>). This is an in-process (serverless) DBMS designed to support analytical query workloads (OLAP) in Structured Query Language (SQL). Creating a local database alleviates memory limitations. DuckDB, implemented in `C++`, can be executed from `R` through the `duckdb` package. We provide a few examples in the sections below.
 
 ## Extracting and summarising LSOA/DZ travel time matrix data
 
@@ -88,10 +137,8 @@ library(dplyr)
 
 # Establish connection ----------------------------------------------------
 
-# Define the database file path
-db_file <- "ttm/lsoa/ttm_lsoa.duckdb"
-# Connect to the DuckDB
-con <- dbConnect(duckdb::duckdb(), db_file)
+# Define in-memory DuckDB
+con <- dbConnect(duckdb::duckdb())
 
 # Extract data from DuckDB ----------------------------------------------
 
@@ -100,8 +147,8 @@ ttm_summary <- dbGetQuery(con, "
   SELECT from_id, 
          time_of_day, 
          COUNT(*) AS count,
-  FROM ttm_pt
-  GROUP BY from_id, time_of_day
+  FROM read_parquet('<path>/lsoa/ttm_pt/*.parquet')
+  GROUP BY from_id, time_of_day;
 ")
 
 # Estimate percent change
@@ -147,11 +194,8 @@ library(dplyr)
 
 # Establish a connection to the DB ----------------------------------------
 
-# Define the DuckDB database file
-db_file <- "ttm/oa/ttm_oa.duckdb"
-# Connect to the DuckDB database
-con <- dbConnect(duckdb::duckdb(), db_file)
-
+# Define in-memory DuckDB
+con <- dbConnect(duckdb::duckdb())
 
 # Summary by origin --------------------------------------------------------
 
@@ -162,7 +206,7 @@ cum_summary <- dbGetQuery(con, "
              COUNT_IF(travel_time_p50 <= 60) AS count_60,
              COUNT_IF(travel_time_p50 <= 120) AS count_120,
              COUNT(*) AS count_all
-      FROM ttm_pt
+      FROM read_parquet('<path>/oa/ttm_oa/*.parquet')
       WHERE travel_time_p50 IS NOT NULL
       GROUP BY from_id
     ")
@@ -172,7 +216,7 @@ cum_summary <- dbGetQuery(con, "
 # Extract travel times from a single origin 
 singleorigin_query <- dbGetQuery(con, "
     SELECT *
-    FROM ttm_pt
+    FROM read_parquet('<path>/oa/ttm_oa/*.parquet')
     WHERE from_id = 'E00004187'
   ")
 
@@ -184,7 +228,7 @@ oa_code_str <-
 # Pass SQL query
 filtered_query <- dbGetQuery(con, sprintf("
     SELECT *
-    FROM ttm_pt
+    FROM read_parquet('<path>/oa/ttm_oa/*.parquet')
     WHERE from_id IN %s
   ", oa_code_str))
 
