@@ -1,6 +1,6 @@
 ---
-title: "Public transport travel time matrices for Great Britain"
-subtitle: "Dataset descriptor"
+title: "Small area unit multimodal travel time matrices in Great Britain"
+subtitle: "Data descriptor"
 author:
     - name: "J Rafael Verduzco-Torres"
       affiliation: "Urban Big Data Centre, University of Glasgow"

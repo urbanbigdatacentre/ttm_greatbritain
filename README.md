@@ -6,6 +6,8 @@ Geographic coverage: England, Scotland, Wales
 Geographic unit: Output area, LSOA/DZ
 Temporal coverage: First quarter 2023.
 
+Download dataset at: <at https://data.ubdc.ac.uk/dataset/public-transport-travel-time-matrices-for-great-britain-ttm-2023>
+
 
 ## Related repositories
 

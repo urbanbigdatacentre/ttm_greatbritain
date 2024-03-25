@@ -4,7 +4,7 @@ library(fs)
 library(tidyverse)
 
 # Directories to exclude
-dir_exclude <- c("comparison|ttm_log|manifest")
+dir_exclude <- c("comparison|ttm_log|manifest|subset")
 
 # Create directory info
 package_manifest <- dir_info(path = 'output', recurse = TRUE) %>% 
@@ -12,6 +12,7 @@ package_manifest <- dir_info(path = 'output', recurse = TRUE) %>%
   filter(!grepl(dir_exclude, path))
 
 sum(package_manifest$size)
+summary(package_manifest$size)
 
 # Save as csv
 write_csv(package_manifest, 'output/ttm/package_inventory.csv')
